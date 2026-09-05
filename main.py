@@ -49,10 +49,10 @@ def health_check():
 
 @app.get("/api/sample-data")
 def download_sample_data():
-    """Endpoint for users to download the sample patient profile CSV."""
-    sample_path = BASE_DIR / "Sample_Patient_Profile.csv"
+    """Endpoint for users to download the real TCGA patient cohort CSV."""
+    sample_path = BASE_DIR / "Real_TCGA_Combined_Cohort.csv"
     if sample_path.exists():
-        return FileResponse(sample_path, media_type="text/csv", filename="Sample_Patient_Profile.csv")
+        return FileResponse(sample_path, media_type="text/csv", filename="Real_TCGA_Combined_Cohort.csv")
     return Response(content="Sample data not found on server.", status_code=404)
 
 @app.post("/predict")

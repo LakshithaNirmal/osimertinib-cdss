@@ -1759,7 +1759,7 @@
             const response = await fetch('/api/sample-data');
             if (!response.ok) throw new Error('Demo cohort data not available on server.');
             const blob = await response.blob();
-            const file = new File([blob], "Sample_Patient_Profile.csv", { type: "text/csv" });
+            const file = new File([blob], "Real_TCGA_Combined_Cohort.csv", { type: "text/csv" });
 
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);

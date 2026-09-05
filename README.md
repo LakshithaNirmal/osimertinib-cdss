@@ -54,5 +54,5 @@ Open your browser at `http://127.0.0.1:8000`.
 
 - `GET /`: Serves the CDSS Web Dashboard (`index.html`)
 - `GET /api/health`: Health status and signature gene count
-- `GET /api/sample-data`: Download the sample patient profile CSV
+- `GET /api/sample-data`: Download the real TCGA patient cohort CSV (`Real_TCGA_Combined_Cohort.csv`)
 - `POST /predict`: Upload a patient CSV/TSV expression profile to obtain risk predictions and EMT score
