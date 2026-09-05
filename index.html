@@ -93,8 +93,7 @@
             height: 100vh;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.75;
-            transition: opacity 0.4s ease;
+            opacity: 1; /* High visual clarity with internal soft-light blending */
         }
 
         /* Ambient Glow Blobs */
@@ -1212,15 +1211,9 @@
 
         /* Platform Footer */
         .platform-footer {
-            margin-top: 36px;
-            padding: 20px 24px;
-            background: rgba(8, 18, 38, 0.92);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            position: relative;
-            z-index: 10;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1295,29 +1288,15 @@
             .researcher-badges-right {
                 align-items: flex-start;
             }
-            /* Soften background animation on mobile/tablet to ensure high contrast & zero clutter */
+            /* Gently decrease background animation opacity on mobile while preserving all animations */
             #combinedBioCanvas {
-                opacity: 0.12 !important;
-            }
-            .platform-footer {
-                padding: 18px 20px;
-                background: linear-gradient(135deg, rgba(9, 20, 42, 0.94), rgba(14, 28, 56, 0.90));
-                border: 1px solid var(--border-strong);
+                opacity: 0.48;
             }
         }
 
         @media (max-width: 480px) {
             #combinedBioCanvas {
-                opacity: 0.07 !important; /* Gentle, whisper-soft ambient glow on phones, zero glare */
-            }
-            .researcher-credit-card {
-                padding: 20px 16px;
-                background: linear-gradient(135deg, rgba(8, 17, 36, 0.96), rgba(12, 24, 48, 0.93));
-            }
-            .platform-footer {
-                padding: 18px 16px;
-                background: linear-gradient(135deg, rgba(9, 20, 42, 0.96), rgba(14, 28, 56, 0.92));
-                border: 1px solid var(--border-subtle);
+                opacity: 0.42; /* A little bit softer on phone screens */
             }
         }
     </style>
@@ -2079,23 +2058,19 @@
         ];
 
         let nodes = [];
-        let isMobile = window.innerWidth <= 768;
-        let isSmallMobile = window.innerWidth <= 480;
+        const nodeCount = 36;
 
         function initNodes() {
-            isMobile = width <= 768;
-            isSmallMobile = width <= 480;
             nodes = [];
-            const nodeCount = isSmallMobile ? 14 : (isMobile ? 20 : 36);
             for (let i = 0; i < nodeCount; i++) {
                 const label = i < geneLabels.length ? geneLabels[i] : '';
                 nodes.push({
-                    x: Math.random() * (isMobile ? width * 0.75 : width * 0.78),
+                    x: Math.random() * (width * 0.78), // Concentrated across left & center, leaving right flank for helix
                     y: Math.random() * (height * 0.85) + 30,
-                    vx: (Math.random() - 0.5) * (isMobile ? 0.22 : 0.35),
-                    vy: (Math.random() - 0.5) * (isMobile ? 0.22 : 0.35),
-                    radius: label ? (Math.random() * 1.2 + (isMobile ? 2.2 : 3.2)) : (Math.random() * 1.0 + (isMobile ? 1.5 : 2.0)),
-                    baseAlpha: isMobile ? (Math.random() * 0.2 + 0.30) : (Math.random() * 0.25 + 0.55),
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35,
+                    radius: label ? (Math.random() * 1.5 + 3.2) : (Math.random() * 1.2 + 2.0),
+                    baseAlpha: Math.random() * 0.25 + 0.55, // Clear, distinct visibility
                     isMesenchymal: i % 2 === 0,
                     label: label,
                     pulsePhase: Math.random() * Math.PI * 2
@@ -2108,8 +2083,8 @@
         const pulses = [];
         for (let i = 0; i < 5; i++) {
             pulses.push({
-                fromIdx: Math.floor(Math.random() * 14),
-                toIdx: Math.floor(Math.random() * 14),
+                fromIdx: Math.floor(Math.random() * nodeCount),
+                toIdx: Math.floor(Math.random() * nodeCount),
                 progress: Math.random(),
                 speed: 0.005 + Math.random() * 0.003
             });
@@ -2117,6 +2092,7 @@
 
         // DNA Mini-Helix Parameters (Right Flank)
         let helixAngle = 0;
+        const helixRadius = 55;        // Compact, refined width
         const helixSpacing = 30;       // Vertical rung spacing
         const helixWavelength = 0.008; // Wave pitch
         const helixSpeed = 0.005;      // Smooth, gentle rotation speed
@@ -2125,10 +2101,6 @@
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            const isMobile = width <= 768;
-            const isSmallMobile = width <= 480;
-            const helixRadius = isSmallMobile ? 24 : (isMobile ? 36 : 55);
-            const helixX = isMobile ? width * 0.94 : width * 0.91;
 
             // ==========================================
             // 1. RNA-Seq Transcriptomic Wave (Bottom)
@@ -2168,6 +2140,7 @@
             // ==========================================
             // 2. Compact 3D DNA Double Helix (Right Flank)
             // ==========================================
+            const helixX = width * 0.91; // Flanked on the right
             const numRungs = Math.ceil(height / helixSpacing) + 3;
             const helixPoints = [];
 
@@ -2252,7 +2225,7 @@
             // ==========================================
             // 3. Molecular Gene Pathway Network
             // ==========================================
-            const maxDistance = isMobile ? 85 : 155;
+            const maxDistance = 155;
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     const dx = nodes[i].x - nodes[j].x;
@@ -2260,52 +2233,48 @@
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist < maxDistance) {
-                        const alpha = (1 - dist / maxDistance) * (isMobile ? 0.22 : 0.38);
+                        const alpha = (1 - dist / maxDistance) * 0.38; // Clearly visible connection lines
                         ctx.beginPath();
                         ctx.moveTo(nodes[i].x, nodes[i].y);
                         ctx.lineTo(nodes[j].x, nodes[j].y);
                         ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-                        ctx.lineWidth = isMobile ? 0.8 : 1.1;
+                        ctx.lineWidth = 1.1;
                         ctx.stroke();
                     }
                 }
 
-                // Interactive Mouse Connection (Desktop only)
-                if (!isMobile) {
-                    const mdx = nodes[i].x - mouse.x;
-                    const mdy = nodes[i].y - mouse.y;
-                    const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-                    if (mdist < 140) {
-                        const mAlpha = (1 - mdist / 140) * 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(nodes[i].x, nodes[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.strokeStyle = `rgba(34, 211, 238, ${mAlpha})`;
-                        ctx.lineWidth = 1.2;
-                        ctx.stroke();
-                    }
+                // Interactive Mouse Connection
+                const mdx = nodes[i].x - mouse.x;
+                const mdy = nodes[i].y - mouse.y;
+                const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+                if (mdist < 140) {
+                    const mAlpha = (1 - mdist / 140) * 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(nodes[i].x, nodes[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.strokeStyle = `rgba(34, 211, 238, ${mAlpha})`;
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
                 }
             }
 
-            // Cross-connection: Connect Pathway Nodes to Helix (Desktop only to prevent mobile clutter)
-            if (!isMobile) {
-                for (let i = 0; i < nodes.length; i += 5) {
-                    const targetPoint = helixPoints[Math.min(helixPoints.length - 1, (i * 2) % helixPoints.length)];
-                    if (targetPoint) {
-                        const cdx = targetPoint.xA - nodes[i].x;
-                        const cdy = targetPoint.y - nodes[i].y;
-                        const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-                        if (cdist < 280) {
-                            const cAlpha = (1 - cdist / 280) * 0.24;
-                            ctx.beginPath();
-                            ctx.moveTo(nodes[i].x, nodes[i].y);
-                            ctx.lineTo(targetPoint.xA, targetPoint.y);
-                            ctx.strokeStyle = `rgba(45, 212, 191, ${cAlpha})`;
-                            ctx.setLineDash([3, 4]); // Dashed transcriptomic transcription link
-                            ctx.lineWidth = 1.0;
-                            ctx.stroke();
-                            ctx.setLineDash([]);
-                        }
+            // Cross-connection: Connect occasional Pathway Nodes to the adjacent DNA Helix
+            for (let i = 0; i < nodes.length; i += 5) {
+                const targetPoint = helixPoints[Math.min(helixPoints.length - 1, (i * 2) % helixPoints.length)];
+                if (targetPoint) {
+                    const cdx = targetPoint.xA - nodes[i].x;
+                    const cdy = targetPoint.y - nodes[i].y;
+                    const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+                    if (cdist < 280) {
+                        const cAlpha = (1 - cdist / 280) * 0.24;
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(targetPoint.xA, targetPoint.y);
+                        ctx.strokeStyle = `rgba(45, 212, 191, ${cAlpha})`;
+                        ctx.setLineDash([3, 4]); // Dashed transcriptomic transcription link
+                        ctx.lineWidth = 1.0;
+                        ctx.stroke();
+                        ctx.setLineDash([]);
                     }
                 }
             }
@@ -2376,13 +2345,11 @@
                     : `rgba(129, 140, 248, ${currentAlpha})`;
                 ctx.fill();
 
-                // Crisp, clearly visible Gene Symbol label (subtly filtered on mobile to avoid card overlap)
-                if (n.label && (!isSmallMobile || i < 6)) {
-                    ctx.font = isMobile ? '500 8.5px "JetBrains Mono", monospace' : '600 10.5px "JetBrains Mono", monospace';
-                    ctx.fillStyle = isMobile
-                        ? `rgba(224, 242, 254, ${Math.min(0.65, currentAlpha * 0.75)})`
-                        : `rgba(224, 242, 254, ${Math.min(1, currentAlpha * 1.15)})`;
-                    ctx.fillText(n.label, n.x + (isMobile ? 5 : 7), n.y + 3.5);
+                // Crisp, clearly visible Gene Symbol label
+                if (n.label) {
+                    ctx.font = '600 10.5px "JetBrains Mono", monospace';
+                    ctx.fillStyle = `rgba(224, 242, 254, ${Math.min(1, currentAlpha * 1.15)})`;
+                    ctx.fillText(n.label, n.x + 7, n.y + 3.5);
                 }
             }
 
